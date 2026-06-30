@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app import models  # noqa: F401  # ensure ORM models are registered with Base.metadata
 from app.db.base import Base
 from app.db.session import engine
 
