@@ -47,6 +47,24 @@ Then open:
 - Web: <http://localhost:5173>
 - API: <http://localhost:8000/docs>
 
+### Convenience scripts
+
+All commands run from the repo root. The full list lives in `package.json`.
+
+| Script             | What it does                                                                  |
+|--------------------|-------------------------------------------------------------------------------|
+| `pnpm docker:up`   | Full stack via `docker compose up --build` (production image, `fastapi run`)  |
+| `pnpm docker:dev`  | Full stack with the dev override (bind mounts + `fastapi dev` + HMR)          |
+| `pnpm docker:down` | Stops all containers                                                          |
+| `pnpm docker:logs` | Tails logs from all services (`docker compose logs -f`)                       |
+| `pnpm dev:api`     | Backend only with HMR, no Docker                                              |
+| `pnpm dev:web`     | Frontend only with HMR, no Docker                                             |
+
+**Tip for the reviewer:** `pnpm docker:dev` is the most useful one — it
+brings up the full stack with `fastapi dev` (auto-reload) and bind
+mounts for the source, so any code change is reflected without rebuilding
+the images.
+
 ### Local development (no Docker)
 
 ```bash
