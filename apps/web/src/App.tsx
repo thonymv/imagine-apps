@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 
 import { useCustomers } from './hooks/useCustomers'
 import { useTickets } from './hooks/useTickets'
@@ -6,37 +7,51 @@ import { CustomerList } from './features/customers/CustomerList'
 import { CustomerForm } from './features/customers/CustomerForm'
 import { TicketList } from './features/tickets/TicketList'
 import { TicketForm } from './features/tickets/TicketForm'
-import type { TicketCreate, TicketStatus } from './api/types'
+import { Layout, type View } from './components/Layout'
+import { Modal } from './components/Modal'
+import { Skeleton } from './components/Skeleton'
+import type {
+  CustomerCreate,
+  TicketCreate,
+  TicketStatus,
+} from './api/types'
 
-import './App.css'
-
-type Tab = 'customers' | 'tickets'
+const titleByView: Record<View, string> = {
+  customers: 'Clientes',
+  tickets: 'Tickets',
+}
 
 function App() {
-  const [tab, setTab] = useState<Tab>('customers')
+  const [view, setView] = useState<View>('customers')
+  const [customerModal, setCustomerModal] = useState(false)
+  const [ticketModal, setTicketModal] = useState(false)
+  const [creating, setCreating] = useState(false)
+
   const customers = useCustomers()
   const tickets = useTickets()
-  const [creating, setCreating] = useState(false)
-  const [busyTicketId, setBusyTicketId] = useState<number | null>(null)
-  const [ticketError, setTicketError] = useState<string | null>(null)
 
-  const handleCreateCustomer: Parameters<typeof CustomerForm>[0]['onSubmit'] =
-    async (data) => {
-      setCreating(true)
-      try {
-        await customers.create(data)
-      } finally {
-        setCreating(false)
-      }
+  const handleCreateCustomer = async (data: CustomerCreate) => {
+    setCreating(true)
+    try {
+      await customers.create(data)
+      setCustomerModal(false)
+      toast.success('Cliente creado correctamente')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error al crear el cliente')
+      throw err
+    } finally {
+      setCreating(false)
     }
+  }
 
   const handleCreateTicket = async (data: TicketCreate) => {
     setCreating(true)
-    setTicketError(null)
     try {
       await tickets.create(data)
+      setTicketModal(false)
+      toast.success('Ticket creado correctamente')
     } catch (err) {
-      setTicketError(err instanceof Error ? err.message : 'Error desconocido')
+      toast.error(err instanceof Error ? err.message : 'Error al crear el ticket')
       throw err
     } finally {
       setCreating(false)
@@ -44,78 +59,83 @@ function App() {
   }
 
   const handleStatusChange = async (id: number, status: TicketStatus) => {
-    setBusyTicketId(id)
-    setTicketError(null)
     try {
       await tickets.updateStatus(id, status)
+      toast.success('Estado actualizado')
     } catch (err) {
-      setTicketError(err instanceof Error ? err.message : 'Error desconocido')
-    } finally {
-      setBusyTicketId(null)
+      toast.error(err instanceof Error ? err.message : 'Error al cambiar el estado')
     }
   }
 
   return (
-    <div className="app">
-      <header className="app__header">
-        <h1>Gestión de Clientes y Tickets</h1>
-        <nav className="tabs" role="tablist">
-          <button
-            role="tab"
-            aria-selected={tab === 'customers'}
-            className={tab === 'customers' ? 'tab tab--active' : 'tab'}
-            onClick={() => setTab('customers')}
+    <Layout view={view} onViewChange={setView} title={titleByView[view]}>
+      {view === 'customers' ? (
+        <>
+          {customers.loading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-14" />
+              <Skeleton className="h-14" />
+              <Skeleton className="h-14" />
+            </div>
+          ) : (
+            <CustomerList
+              customers={customers.customers}
+              onNew={() => setCustomerModal(true)}
+            />
+          )}
+          {customers.error && (
+            <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+              {customers.error}
+            </p>
+          )}
+          <Modal
+            open={customerModal}
+            title="Nuevo cliente"
+            onClose={() => setCustomerModal(false)}
           >
-            Clientes
-          </button>
-          <button
-            role="tab"
-            aria-selected={tab === 'tickets'}
-            className={tab === 'tickets' ? 'tab tab--active' : 'tab'}
-            onClick={() => setTab('tickets')}
+            <CustomerForm
+              busy={creating}
+              onSubmit={handleCreateCustomer}
+              onCancel={() => setCustomerModal(false)}
+            />
+          </Modal>
+        </>
+      ) : (
+        <>
+          {tickets.loading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-14" />
+              <Skeleton className="h-14" />
+              <Skeleton className="h-14" />
+            </div>
+          ) : (
+            <TicketList
+              tickets={tickets.tickets}
+              customers={customers.customers}
+              onNew={() => setTicketModal(true)}
+              onStatusChange={handleStatusChange}
+            />
+          )}
+          {(ticketModal && tickets.error) || tickets.error ? (
+            <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+              {tickets.error}
+            </p>
+          ) : null}
+          <Modal
+            open={ticketModal}
+            title="Nuevo ticket"
+            onClose={() => setTicketModal(false)}
           >
-            Tickets
-          </button>
-        </nav>
-      </header>
-
-      <main className="app__main">
-        {tab === 'customers' ? (
-          <section className="section">
-            <CustomerForm onSubmit={handleCreateCustomer} busy={creating} />
-            {customers.error && <p className="error">{customers.error}</p>}
-            <h2>Listado</h2>
-            {customers.loading ? (
-              <p className="muted">Cargando…</p>
-            ) : (
-              <CustomerList customers={customers.customers} />
-            )}
-          </section>
-        ) : (
-          <section className="section">
             <TicketForm
               customers={customers.customers}
               busy={creating}
               onSubmit={handleCreateTicket}
+              onCancel={() => setTicketModal(false)}
             />
-            {(ticketError || tickets.error) && (
-              <p className="error">{ticketError ?? tickets.error}</p>
-            )}
-            <h2>Listado</h2>
-            {tickets.loading ? (
-              <p className="muted">Cargando…</p>
-            ) : (
-              <TicketList
-                tickets={tickets.tickets}
-                customers={customers.customers}
-                busyId={busyTicketId}
-                onStatusChange={handleStatusChange}
-              />
-            )}
-          </section>
-        )}
-      </main>
-    </div>
+          </Modal>
+        </>
+      )}
+    </Layout>
   )
 }
 
