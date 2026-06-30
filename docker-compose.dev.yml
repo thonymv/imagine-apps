@@ -15,7 +15,7 @@ services:
     build:
       dockerfile: apps/web/Dockerfile.dev
     ports:
-      - "5174:5173"
+      - "5174:5174"
     volumes:
       - ./apps/web/src:/app/apps/web/src
       - ./apps/web/index.html:/app/apps/web/index.html
