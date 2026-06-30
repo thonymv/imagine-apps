@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vite/
+build/
+coverage/
+Dockerfile
+Dockerfile.dev
+nginx.conf
+.git/
+.gitignore
+.eslintcache
+*.local
