@@ -1,0 +1,112 @@
+# ===========================================
+# Node / pnpm
+# ===========================================
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+.npm/
+.yarn/
+.pnp.*
+
+# Build outputs (Vite, esbuild, rollup)
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+
+# Vite cache
+.vite/
+
+# Cache y coverage de tests
+coverage/
+.nyc_output/
+*.lcov
+
+# ===========================================
+# Python / uv
+# ===========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+.ENV/
+.python-version
+
+# uv
+.uv-cache/
+.uv/
+uvx-cache/
+
+# Build artifacts
+*.egg-info/
+*.egg
+dist/
+build/
+.wheelhouse/
+
+# Type checker / linter / formatter caches
+.mypy_cache/
+.ruff_cache/
+.pyright_cache/
+.dmypy.json
+dmypy.json
+
+# pytest / coverage / tox
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache/
+.pyright/
+.pyre/
+
+# Logs
+*.log
+logs/
+pip-log.txt
+pip-delete-this-directory.txt
+pdm-debug.log*
+
+# ===========================================
+# Entornos / OS / Editores
+# ===========================================
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ===========================================
+# Misc
+# ===========================================
+*.local
+*.pid
+*.seed
+*.pid.lock
+.history/
+
+# Turbo / Nx (por si los sumás después)
+.turbo/
+.nx/cache
+.nx/workspace-data
