@@ -37,8 +37,8 @@ services:
       context: .
       dockerfile: apps/api/Dockerfile
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://app:app@db:5432/app}
-      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/audit}
+      DATABASE_URL: postgresql+asyncpg://app:app@db:5432/app
+      MONGO_URL: mongodb://mongo:27017/audit
     depends_on:
       db:
         condition: service_healthy
