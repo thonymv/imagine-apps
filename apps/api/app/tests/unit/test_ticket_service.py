@@ -5,6 +5,7 @@ from fastapi import HTTPException
 
 from app.models.ticket import Ticket, TicketStatus
 from app.schemas.ticket import TicketStatusUpdate
+from app.services.audit_service import AuditService
 from app.services.ticket_service import TicketService
 
 
@@ -19,8 +20,15 @@ def customer_repo() -> AsyncMock:
 
 
 @pytest.fixture
-def service(ticket_repo: AsyncMock, customer_repo: AsyncMock) -> TicketService:
-    return TicketService(ticket_repo, customer_repo)
+def audit() -> AsyncMock:
+    return AsyncMock(spec=AuditService)
+
+
+@pytest.fixture
+def service(
+    ticket_repo: AsyncMock, customer_repo: AsyncMock, audit: AsyncMock
+) -> TicketService:
+    return TicketService(ticket_repo, customer_repo, audit)
 
 
 async def test_update_status_raises_not_found_when_missing(

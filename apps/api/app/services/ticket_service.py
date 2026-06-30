@@ -4,14 +4,19 @@ from app.models.ticket import Ticket
 from app.repositories.customer_repository import CustomerRepository
 from app.repositories.ticket_repository import TicketRepository
 from app.schemas.ticket import TicketCreate, TicketStatusUpdate
+from app.services.audit_service import AuditService
 
 
 class TicketService:
     def __init__(
-        self, repo: TicketRepository, customer_repo: CustomerRepository
+        self,
+        repo: TicketRepository,
+        customer_repo: CustomerRepository,
+        audit: AuditService,
     ):
         self.repo = repo
         self.customer_repo = customer_repo
+        self.audit = audit
 
     async def list(self) -> list[Ticket]:
         return await self.repo.list_all()
@@ -32,7 +37,11 @@ class TicketService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Customer not found",
             )
-        return await self.repo.create(data)
+        ticket = await self.repo.create(data)
+        await self.audit.record_event(
+            user="system", action="ticket.created", ticket_id=ticket.id
+        )
+        return ticket
 
     async def update_status(
         self, ticket_id: int, data: TicketStatusUpdate
@@ -43,4 +52,10 @@ class TicketService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Ticket not found",
             )
-        return await self.repo.update_status(ticket, data.status)
+        updated = await self.repo.update_status(ticket, data.status)
+        await self.audit.record_event(
+            user="system",
+            action="ticket.status_changed",
+            ticket_id=updated.id,
+        )
+        return updated

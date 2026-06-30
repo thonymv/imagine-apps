@@ -13,6 +13,7 @@ dependencies = [
     "asyncpg",
     "pydantic-settings",
     "pydantic[email]",
+    "motor>=3.6",
 ]
 
 [build-system]

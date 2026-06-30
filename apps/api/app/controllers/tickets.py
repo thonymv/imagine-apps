@@ -5,6 +5,7 @@ from app.db.session import get_db
 from app.repositories.customer_repository import CustomerRepository
 from app.repositories.ticket_repository import TicketRepository
 from app.schemas.ticket import TicketCreate, TicketRead, TicketStatusUpdate
+from app.services.audit_service import AuditService
 from app.services.ticket_service import TicketService
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
@@ -12,7 +13,9 @@ router = APIRouter(prefix="/tickets", tags=["tickets"])
 
 def _service(session: AsyncSession = Depends(get_db)) -> TicketService:
     return TicketService(
-        TicketRepository(session), CustomerRepository(session)
+        TicketRepository(session),
+        CustomerRepository(session),
+        AuditService(),
     )
 
 

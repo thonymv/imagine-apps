@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import models  # noqa: F401  # ensure ORM models are registered with Base.metadata
 from app.controllers import customers as customers_controller
 from app.controllers import tickets as tickets_controller
+from app.db import mongo
 from app.db.base import Base
 from app.db.session import engine
 
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
     yield
     await engine.dispose()
+    mongo.close_client()
 
 
 app = FastAPI(lifespan=lifespan)
