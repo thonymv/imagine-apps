@@ -7,7 +7,7 @@
     "dev:api": "cd apps/api && uv run fastapi dev",
     "dev:web": "pnpm -F web dev",
     "docker:up": "docker compose up --build",
-    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up",
+    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f"
   },

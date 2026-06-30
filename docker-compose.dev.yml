@@ -1,16 +1,23 @@
 services:
-  web:
+  api:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile.dev
-    command: ["pnpm", "dev", "--host", "0.0.0.0", "--port", "5174"]
+      dockerfile: apps/api/Dockerfile.dev
     environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://app:app@db:5432/app}
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/audit}
+      WATCHFILES_FORCE_POLLING: "true"
+    volumes:
+      - ./apps/api/app:/app/apps/api/app
+      - ./apps/api/pyproject.toml:/app/apps/api/pyproject.toml
+
+  web:
+    build:
+      dockerfile: apps/web/Dockerfile.dev
+    ports:
+      - "5174:5173"
     volumes:
       - ./apps/web/src:/app/apps/web/src
       - ./apps/web/index.html:/app/apps/web/index.html
       - ./apps/web/vite.config.ts:/app/apps/web/vite.config.ts
       - ./apps/web/public:/app/apps/web/public
-    ports:
-      - "5174:5174"
