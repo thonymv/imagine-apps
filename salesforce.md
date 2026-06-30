@@ -23,8 +23,16 @@ salvo el `id` que viaja en un campo custom `External_Id__c` (texto).
    con el upsert key, e idéntico para Contact.
 2. **Ticket → Case** — al crear un ticket o cambiar su estado, el
    `AuditService` ya escribe en Mongo (`audit.events`); un segundo
-   consumer re-emite los mismos eventos a `Ticket_Event__e` por la
-   REST API de Platform Events o vía MuleSoft / Salesforce Connect.
+   consumer re-emite los mismos eventos publicando un Platform Event
+   `Ticket_Event__e` mediante la REST API de Salesforce:
+   ```
+   POST /services/data/vXX.0/sobjects/Ticket_Event__e
+   Content-Type: application/json
+   Body: { "Title__c": "...", "Description__c": "...",
+           "Status__c": "...", "Customer_Id__c": 123 }
+   ```
+   (Para volúmenes altos, MuleSoft puede actuar como orquestador
+   entre el backend y Salesforce.)
 3. **Case → Ticket (sentido inverso, opcional)** — un Apex Trigger en
    `Case` (after update) publica en un Platform Event inverso que el
    backend consume y refleja en Postgres (idempotente por
@@ -142,13 +150,15 @@ public with sharing class TicketController {
 
 ## Exposición vía Experience Cloud
 
-- Crear un Experience Cloud site ("Customer Service Portal") con
-  template "Build Your Own" o "Customer Account Portal".
-- Como portal login, habilitar "Customer Account Portal" para que los
-  Contacts se autentiquen con email + OTP / SSO.
+- Crear un Experience Cloud site (p. ej. template "Build Your Own"
+  con LWR, o "Customer Service") y habilitar las features de
+  Customer Account Portal para que los Contacts se autentiquen con
+  email + verificación / SSO.
 - Lightning Page en la home con un único componente: `<c-my-tickets-lwc>`.
-  Pasa el `contactId` del usuario actual (disponible en Experience Cloud
-  como `{!$User.ContactId}`).
+  Pasa el `contactId` del usuario actual. En LWC, impórtalo con
+  `import Id from '@salesforce/user/Id'` y un wire a `getRecord` sobre
+  el User para extraer `User.ContactId` (la sintaxis Aura
+  `{!$User.ContactId}` no funciona dentro de un componente LWC).
 - El LWC consume `getMyCases` filtrado por `ContactId`, suscribiéndose
   al Platform Event inverso (`ticketUpdated`) para refrescar el estado
   en tiempo casi-real cuando un agente de soporte cierra el Case en SF.
