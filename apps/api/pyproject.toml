@@ -9,6 +9,10 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.138.2",
+    "sqlalchemy>=2.0",
+    "asyncpg",
+    "pydantic-settings",
+    "pydantic[email]",
 ]
 
 [build-system]
@@ -19,5 +23,15 @@ build-backend = "uv_build"
 module-name = "app"
 module-root = ""
 
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+]
+
 [tool.fastapi]
 entrypoint = "app.main:app"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["app"]
