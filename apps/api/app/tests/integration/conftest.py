@@ -26,7 +26,7 @@ def _check_db_reachable() -> None:
     try:
         with socket.create_connection((host, port), timeout=2):
             return
-    except (OSError, socket.timeout) as exc:
+    except (TimeoutError, OSError) as exc:
         pytest.skip(
             f"Integration tests skipped: DB not reachable at {host}:{port} ({exc})"
         )

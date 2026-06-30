@@ -28,6 +28,7 @@ module-root = ""
 dev = [
     "pytest",
     "pytest-asyncio",
+    "ruff",
 ]
 
 [tool.fastapi]
@@ -38,3 +39,15 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
 asyncio_default_test_loop_scope = "session"
 testpaths = ["app"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/controllers/**/*.py" = ["B008"]
+"app/models/ticket.py" = ["UP042"]
+"app/repositories/base.py" = ["UP046"]

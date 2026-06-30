@@ -1,4 +1,4 @@
-from typing import Generic, Type, TypeVar
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -11,7 +11,7 @@ CreateSchemaT = TypeVar("CreateSchemaT", bound=BaseModel)
 
 
 class CRUDBase(Generic[ModelT, CreateSchemaT]):
-    def __init__(self, model: Type[ModelT], session: AsyncSession):
+    def __init__(self, model: type[ModelT], session: AsyncSession):
         self.model = model
         self.session = session
 

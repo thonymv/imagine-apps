@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
 import logging
+from datetime import UTC, datetime
 
 from app.db.mongo import get_db
 
@@ -18,7 +18,7 @@ class AuditService:
                     "user": user,
                     "action": action,
                     "ticket_id": ticket_id,
-                    "at": datetime.now(timezone.utc),
+                    "at": datetime.now(UTC),
                 }
             )
         except Exception as exc:
