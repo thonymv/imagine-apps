@@ -8,8 +8,7 @@ import type {
 import { Avatar } from '../../components/Avatar'
 import { Button } from '../../components/Button'
 import { EmptyState } from '../../components/EmptyState'
-import { StatusBadge } from '../../components/StatusBadge'
-import { StatusSelect } from './StatusSelect'
+import { StatusMenu } from '../../components/StatusMenu'
 
 interface TicketListProps {
   tickets: Ticket[]
@@ -121,13 +120,10 @@ export function TicketList({
                     <p className="line-clamp-2">{t.description}</p>
                   </td>
                   <td className="px-6 py-3">
-                    <div className="flex items-center gap-2">
-                      <StatusBadge status={t.status} />
-                      <StatusSelect
-                        value={t.status}
-                        onChange={(s) => void onStatusChange(t.id, s)}
-                      />
-                    </div>
+                    <StatusMenu
+                      value={t.status}
+                      onChange={(s) => void onStatusChange(t.id, s)}
+                    />
                   </td>
                 </tr>
               )
