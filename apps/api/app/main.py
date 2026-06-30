@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import models  # noqa: F401  # ensure ORM models are registered with Base.metadata
+from app.controllers import customers as customers_controller
+from app.controllers import tickets as tickets_controller
 from app.db.base import Base
 from app.db.session import engine
 
@@ -30,6 +32,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(customers_controller.router, prefix="/api/v1")
+app.include_router(tickets_controller.router, prefix="/api/v1")
 
 
 @app.get("/")
